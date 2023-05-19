@@ -47,7 +47,7 @@ while true; do
 
     if grep -irl $searchList force-app/main/default/objects/Case/listViews;then
         echo 'Found'
-        filetoChange=$(grep -irl $searchList force-app/main/default/objects/Case/listViews | fzf --height=~15)
+        filetoChange=$(grep -irl $searchList force-app/main/default/objects/Case/listViews | head -1)
         echo 'First match has been taken $filetoChange , Please specify properly next time'
         # hard coded columns to be added
         # sed  -i -e '/<columns>/,/<\/columns>/d' -e '/<\/fullName>/r ../columns.xml' $filetoChange

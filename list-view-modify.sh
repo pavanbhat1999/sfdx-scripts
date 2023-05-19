@@ -53,7 +53,7 @@ modify_list_view(){
             echo "Using the selected match: $file_to_change"
 
             echo "If you are ready to proceed, press any key to continue, or press Control+C to exit"
-            read -n 1 choice
+            read
 
       # Define the columns to be added
       columns_to_add="<columns>CASES.CASE_NUMBER</columns>\n<columns>NAME</columns>\n<columns>CASES.STATUS</columns>"

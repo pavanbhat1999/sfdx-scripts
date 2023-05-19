@@ -54,9 +54,6 @@ modify_list_view(){
 
             echo "If you are ready to proceed, press any key to continue, or press Control+C to exit"
             read -n 1 choice
-        if [[$choice=='s']]; then
-            continue
-        fi
 
       # Define the columns to be added
       columns_to_add="<columns>CASES.CASE_NUMBER</columns>\n<columns>NAME</columns>\n<columns>CASES.STATUS</columns>"

@@ -29,37 +29,47 @@ retrieve_case_metadata(){
     echo "Case Object data received"
 }
 modify_list_view(){
+    while true; do
+        echo "\n Enter the list view name to be modified, or press Control+C to exit:"
+        read search_list
 
-while true; do
+        matches=$(grep -irl "$search_list" force-app/main/default/objects/Case/listViews)
 
-    echo "\n Search for the List View to be modified or press Control+c to exit"
-    read searchList
-
-    if grep -irl $searchList force-app/main/default/objects/Case/listViews;then
-        echo 'Found'
-        filetoChange=$(grep -irl $searchList force-app/main/default/objects/Case/listViews | head -1)
-        echo "First match has been taken $filetoChange , Please specify properly next time"
-        echo "If you are good to GO: Press Any Key to continue else press s to skip"
-        read -n 1 choice
-        if [[ "$choice" == "s" ]]; then
+        if [[ -z $matches ]]; then
+            echo "No matches found"
             continue
         fi
-        # hard coded columns to be added
-        # sed  -i -e '/<columns>/,/<\/columns>/d' -e '/<\/fullName>/r ../columns.xml' $filetoChange
-        sed -i '/<columns>/d; /<\/fullName>/a <columns>CASES.CASE_NUMBER<\/columns>\n<columns>NAME<\/columns>\n<columns>CASES.STATUS<\/columns>' $filetoChange
-        sfdx project deploy start -o $orgAlias -d $filetoChange
 
-        echo "Changed Metadata"
-    else
-        echo 'Not Found'
-    fi
-done
-}
-cleanup(){
-  echo "Deleting the project - $project_name"
-  cd ..
-  rm -rf "$project_name"
-  echo "Project deleted"
+        echo "Multiple matches found. Please select the desired list view:"
+        i=1
+        for match in $matches; do
+            echo "$i. $match"
+            ((i++))
+        done
+
+        read -p "Enter the number corresponding to the list view: " selected_index
+        if [[ $selected_index -gt 0 && $selected_index -le $i ]]; then
+            file_to_change=$(sed -n "${selected_index}p" <<< "$matches")
+            echo "Using the selected match: $file_to_change"
+
+            echo "If you are ready to proceed, press any key to continue, or press Control+C to exit"
+            read -n 1 choice
+        if [[$choice=='s']]; then
+            continue
+        fi
+
+      # Define the columns to be added
+      columns_to_add="<columns>CASES.CASE_NUMBER</columns>\n<columns>NAME</columns>\n<columns>CASES.STATUS</columns>"
+
+      # Add columns to the list view
+      sed -i "/<columns>/d; /<\/fullName>/a $columns_to_add" "$file_to_change"
+      sfdx project deploy start -o "$org_alias" -d "$file_to_change"
+
+      echo "Metadata changed"
+  else
+      echo "Invalid selection"
+        fi
+    done
 }
 
 #---------------------------------------------------------------------------------------------------
